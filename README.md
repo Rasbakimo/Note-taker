@@ -16,7 +16,7 @@
   
   ## Installation
   
-  * Here's how to install it:*
+  * Here's how to install it:
   
   install node and inquirer read docs if necessary
   
