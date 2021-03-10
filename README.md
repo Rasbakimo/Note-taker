@@ -10,7 +10,6 @@
   ## Table of Contents
   * [Installation](#installation)
   * [Usage](#usage)
-  * [Contributing](#contributing)
   * [Tests](#tests)
   * [License](#license)
   
@@ -18,7 +17,7 @@
   
   * Here's how to install it:
   
-  install node and inquirer read docs if necessary
+ git clone the repo, install node packages, run node server.js  
   
   ## Usage 
   
