@@ -1,67 +1,72 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
 
-module.exports = app => {
+// imported 'uuid' npm package for unique id
+const { v4: uuidv4 } = require('uuid');
+// ROUTING
+module.exports = function (app) {
 
-    // Setup notes variable
-    fs.readFile("/Develop/db/db.json","utf8", (err, data) => {
-
-        if (err) throw err;
-
-        var notes = JSON.parse(data);
-
-        // API ROUTES
-        // ========================================================
-    
-        // Setup the /api/notes get route
-        app.get("/api/notes", function(req, res) {
-            // Read the db.json file and return all saved notes as JSON.
-            res.json(notes);
-        });
-
-        // Setup the /api/notes post route
-        app.post("/api/notes", function(req, res) {
-            // Receives a new note, adds it to db.json, then returns the new note
-            let newNote = req.body;
-            notes.push(newNote);
-            updateDb();
-            return console.log("Added new note: "+newNote.title);
-        });
-
-        // Retrieves a note with specific id
-        app.get("/api/notes/:id", function(req,res) {
-            // display json for the notes array indices of the provided id
-            res.json(notes[req.params.id]);
-        });
-
-        // Deletes a note with specific id
-        app.delete("/api/notes/:id", function(req, res) {
-            notes.splice(req.params.id, 1);
-            updateDb();
-            console.log("Deleted note with id "+req.params.id);
-        });
-
-        // VIEW ROUTES
-        // ========================================================
-
-        // Display notes.html when /notes is accessed
-        app.get('/notes', function(req,res) {
-            res.sendFile(path.join(__dirname, "../Develop/public/notes.html"));
-        });
+    // API GET Request
+    app.get("/api/notes", (request, response) => {
         
-        // Display index.html when all other routes are accessed
-        app.get('*', function(req,res) {
-            res.sendFile(path.join(__dirname, "../Develop/public/index.html"));
-        });
+        console.log("\n\nExecuting GET notes request");
 
-        //updates the json file whenever a note is added or deleted
-        function updateDb() {
-            fs.writeFile("/Develop/db/db.json",JSON.stringify(notes,'\t'),err => {
-                if (err) throw err;
-                return true;
-            });
-        }
-
+        // Read 'db.json' file 
+        let data = JSON.parse(fs.readFileSync("./Develop/db/db.json", "utf8"));
+        
+        console.log("\nGET request - Returning notes data: " + JSON.stringify(data));
+        
+        // Send read data to response of 'GET' request
+        response.json(data);
     });
 
-}
+
+    // API POST Request
+    app.post("/api/notes", (request, response) => {
+
+        // Extracted new note from request body.  
+        const newNote = request.body;
+        
+        console.log("\n\nPOST request - New Note : " + JSON.stringify(newNote));
+
+        // Assigned unique id obtained from 'uuid' package
+        newNote.id = uuidv4();
+
+        // Read data from 'db.json' file
+        let data = JSON.parse(fs.readFileSync("./Develop/db/db.json", "utf8"));
+    
+        // Pushed new note in notes file 'db.json'
+        data.push(newNote);
+
+        // Written notes data to 'db.json' file
+        fs.writeFileSync('./Develop/db/db.json', JSON.stringify(data));
+        
+        console.log("\nSuccessfully added new note to 'db.json' file!");
+
+        // Send response
+        response.json(data);
+    });
+
+
+    // API DELETE request
+    app.delete("/api/notes/:id", (request, response) => {
+
+        // Fetched id to delete
+        let noteId = request.params.id.toString();
+        
+        console.log(`\n\nDELETE note request for noteId: ${noteId}`);
+
+        // Read data from 'db.json' file
+        let data = JSON.parse(fs.readFileSync("./Develop/db/db.json", "utf8"));
+
+        // filter data to get notes except the one to delete
+        const newData = data.filter( note => note.id !== noteId );
+
+        // Write new data to 'db.json' file
+        fs.writeFileSync('./Develop/db/db.json', JSON.stringify(newData));
+        
+        console.log(`\nSuccessfully deleted note with id : ${noteId}`);
+
+        // Send response
+        response.json(newData);
+    });
+};
