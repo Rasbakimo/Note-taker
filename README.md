@@ -41,7 +41,7 @@
    Run it and use the terminal's console to check for errors.
    ## Deploy app 
     
-    [https://dry-coast-89335.herokuapp.com/]
+    [https://dry-coast-89335.herokuapp.com]
   
   ## License
   
